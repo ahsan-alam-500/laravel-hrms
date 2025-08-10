@@ -1,61 +1,110 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Public HRMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Human Resource Management System (HRMS) for managing employees, attendance, leave, payroll, and documents.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+*   Employee Management
+*   Attendance Tracking
+*   Leave Management
+*   Payroll Processing
+*   Document Management
+*   User Authentication
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## API Endpoints
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+All endpoints are prefixed with `/api/v1`.
 
-## Learning Laravel
+### Authentication
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+*   `POST /register` - Register a new user.
+*   `POST /login` - Login a user and get a JWT token.
+*   `GET /profile` - Get the authenticated user's profile.
+*   `PUT /profile/{id}/update` - Update the authenticated user's profile.
+*   `POST /logout` - Logout the authenticated user.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Departments
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+*   `GET /departments` - Get all departments.
+*   `POST /departments` - Create a new department.
+*   `GET /departments/{id}` - Get a single department.
+*   `PUT /departments/{id}` - Update a department.
+*   `DELETE /departments/{id}` - Delete a department.
 
-## Laravel Sponsors
+### Employees
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+*   `GET /employees` - Get all employees.
+*   `POST /employees` - Create a new employee.
+*   `GET /employees/{id}` - Get a single employee.
+*   `PUT /employees/{id}` - Update an employee.
+*   `DELETE /employees/{id}` - Delete an employee.
 
-### Premium Partners
+### Attendance
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+*   `GET /attendances` - Get all attendances.
+*   `POST /attendances` - Create a new attendance record.
+*   `GET /attendances/{id}` - Get a single attendance record.
+*   `PUT /attendances/{id}` - Update an attendance record.
+*   `DELETE /attendances/{id}` - Delete an attendance record.
 
-## Contributing
+### Leave
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+*   `GET /leaves` - Get all leave records.
+*   `POST /leaves` - Create a new leave record.
+*   `GET /leaves/{id}` - Get a single leave record.
+*   `PUT /leaves/{id}` - Update a leave record.
+*   `DELETE /leaves/{id}` - Delete a leave record.
 
-## Code of Conduct
+### Payroll
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+*   `GET /payrolls` - Get all payroll records.
+*   `POST /payrolls` - Create a new payroll record.
+*   `GET /payrolls/{id}` - Get a single payroll record.
+*   `PUT /payrolls/{id}` - Update a payroll record.
+*   `DELETE /payrolls/{id}` - Delete a payroll record.
 
-## Security Vulnerabilities
+### Documents
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+*   `GET /documents` - Get all documents.
+*   `POST /documents` - Create a new document.
+*   `GET /documents/{id}` - Get a single document.
+*   `PUT /documents/{id}` - Update a document.
+*   `DELETE /documents/{id}` - Delete a document.
 
-## License
+## Scalability Improvements
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+*   **Unused Code Removal:** Removed the unused `holiday` model and its corresponding migration file.
+*   **Caching:** Added caching to the `DepartmentController` to improve performance by reducing database queries for the list of departments.
+*   **Error Handling:** Improved the error handling in the `EmployeeController` and `PayrollController` to use a more structured JSON:API-compliant error response when a resource is not found.
+*   **Code Refactoring:** Refactored the `PayrollController` to remove code duplication by extracting the net salary calculation into a private helper method.
+
+## Setup and Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/publichrms.git
+    ```
+2.  Install dependencies:
+    ```bash
+    composer install
+    ```
+3.  Copy the `.env.example` file to `.env` and configure your database and other settings:
+    ```bash
+    cp .env.example .env
+    ```
+4.  Generate an application key:
+    ```bash
+    php artisan key:generate
+    ```
+5.  Run the database migrations:
+    ```bash
+    php artisan migrate
+    ```
+6.  Run the database seeders:
+    ```bash
+    php artisan db:seed
+    ```
+7.  Start the development server:
+    ```bash
+    php artisan serve
+    ```
