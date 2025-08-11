@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\PayrollController;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Route;
 
 
@@ -16,7 +17,11 @@ Route::prefix('v1')->group(function () {
     // Public Routes
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/forgotpassword', [AuthController::class, 'forgetPassword']);
+    Route::post('/optvalidation', [AuthController::class,'optValidation']);
+    Route::post('/resetpassword', [AuthController::class, 'resetPassword']);
 
     // Protected Routes
     Route::middleware('jwt.auth')->group(function () {

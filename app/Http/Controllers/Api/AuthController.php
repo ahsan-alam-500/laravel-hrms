@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Validation\ValidationException;
 use Intervention\Image\Facades\Image;
@@ -60,11 +61,88 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
-            'user' => auth()->user()
+            'user' => auth()->user(),
             'status' => 'success',
             'status_code' => 200,
         ]);
     }
+
+    public function forgetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $otp = rand(1000, 999999);
+
+        $user->otp = $otp;
+        $user->save();
+
+        // Send email
+          Mail::send('email.otp', ['userName' => $user->name, 'otpCode' => $otp], function ($message) use ($user) {
+          $message->to($user->email)
+        ->subject('Password Reset OTP');
+});
+
+        return response()->json([
+            'message' => 'OTP sent successfully',
+            'status' => 'success',
+            'status_code' => 200,
+        ]);
+    }
+
+    public function optValidation(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+        $user = User::where('email', $request->email)->first();
+
+        if ($user->otp != $request->otp) {
+            return response()->json(['error' => 'Invalid OTP'], 404);
+        }
+        $user->otpValidated = true;
+        $user->save();
+        return response()->json([
+            'message' => 'OTP validated successfully',
+            'status' => 'success',
+            'status_code' => 200,
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::where('email', $request->email)
+            ->where('otpValidated', 1)
+            ->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unverified Action'], 400);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->otp = null;
+        $user->otpValidated = false;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Password updated successfully',
+            'status' => 'success',
+            'status_code' => 200,
+        ]);
+    }
+
 
 
     public function profile()
