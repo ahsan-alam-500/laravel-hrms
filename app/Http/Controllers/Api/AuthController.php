@@ -84,10 +84,10 @@ class AuthController extends Controller
         $user->save();
 
         // Send email
-          Mail::send('email.otp', ['userName' => $user->name, 'otpCode' => $otp], function ($message) use ($user) {
-          $message->to($user->email)
-        ->subject('Password Reset OTP');
-});
+        Mail::send('email.otp', ['userName' => $user->name, 'otpCode' => $otp], function ($message) use ($user) {
+            $message->to($user->email)
+                ->subject('Password Reset OTP');
+        });
 
         return response()->json([
             'message' => 'OTP sent successfully',
