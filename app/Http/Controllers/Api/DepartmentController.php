@@ -5,12 +5,17 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\Cache;
+
 class DepartmentController extends Controller
 {
     // ✅ Get all departments
     public function index()
     {
-        return response()->json(Department::all());
+        $departments = Cache::remember('departments', 60, function () {
+            return Department::all();
+        });
+        return response()->json($departments);
     }
 
     // ✅ Create new department
@@ -22,6 +27,8 @@ class DepartmentController extends Controller
         ]);
 
         $department = Department::create($request->all());
+
+        Cache::forget('departments');
 
         return response()->json([
             'message' => 'Department created successfully',
@@ -45,6 +52,8 @@ class DepartmentController extends Controller
 
         $department->update($request->all());
 
+        Cache::forget('departments');
+
         return response()->json([
             'message' => 'Department updated successfully',
             'data' => $department
@@ -55,6 +64,8 @@ class DepartmentController extends Controller
     public function destroy(Department $department)
     {
         $department->delete();
+
+        Cache::forget('departments');
 
         return response()->json([
             'message' => 'Department deleted successfully'

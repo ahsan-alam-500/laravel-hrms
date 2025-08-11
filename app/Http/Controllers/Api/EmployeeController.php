@@ -37,36 +37,61 @@ class EmployeeController extends Controller
     // GET /employees/{id}
     public function show($id)
     {
-        $employee = Employee::with('department', 'user')->find($id);
-        if (!$employee) {
-            return response()->json(['message' => 'Employee not found'], 404);
+        try {
+            $employee = Employee::with('department', 'user')->findOrFail($id);
+            return response()->json($employee);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested employee resource was not found.'
+                    ]
+                ]
+            ], 404);
         }
-        return response()->json($employee);
     }
 
     // PUT/PATCH /employees/{id}
     public function update(Request $request, $id)
     {
-        $employee = Employee::find($id);
-        if (!$employee) {
-            return response()->json(['message' => 'Employee not found'], 404);
+        try {
+            $employee = Employee::findOrFail($id);
+            $employee->update($request->all());
+
+            return response()->json(['message' => 'Employee updated', 'data' => $employee]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested employee resource was not found.'
+                    ]
+                ]
+            ], 404);
         }
-
-        $employee->update($request->all());
-
-        return response()->json(['message' => 'Employee updated', 'data' => $employee]);
     }
 
     // DELETE /employees/{id}
     public function destroy($id)
     {
-        $employee = Employee::find($id);
-        if (!$employee) {
-            return response()->json(['message' => 'Employee not found'], 404);
+        try {
+            $employee = Employee::findOrFail($id);
+            $employee->delete();
+
+            return response()->json(['message' => 'Employee deleted']);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested employee resource was not found.'
+                    ]
+                ]
+            ], 404);
         }
-
-        $employee->delete();
-
-        return response()->json(['message' => 'Employee deleted']);
     }
 }

@@ -65,7 +65,6 @@
     <div class="error-message">
       The method is not allowed for the requested URL.
     </div>
-    <a href="/">Go Back Home</a>
   </div>
 </body>
 </html>

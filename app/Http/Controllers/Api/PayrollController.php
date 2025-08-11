@@ -27,7 +27,11 @@ class PayrollController extends Controller
         ]);
 
         // calculate net_salary
-        $net_salary = $request->basic_salary + ($request->bonus ?? 0) - ($request->deductions ?? 0);
+        $net_salary = $this->calculateNetSalary(
+            $request->basic_salary,
+            $request->bonus,
+            $request->deductions
+        );
 
         $payroll = Payroll::create([
             'employee_id' => $request->employee_id,
@@ -44,8 +48,20 @@ class PayrollController extends Controller
     // showing certain id payroll
     public function show($id)
     {
-        $payroll = Payroll::with('employee')->findOrFail($id);
-        return response()->json($payroll);
+        try {
+            $payroll = Payroll::with('employee')->findOrFail($id);
+            return response()->json($payroll);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested payroll resource was not found.'
+                    ]
+                ]
+            ], 404);
+        }
     }
 
     // updating certain id payroll
@@ -59,33 +75,62 @@ class PayrollController extends Controller
             'deductions' => 'nullable|numeric|min:0',
         ]);
 
-        $payroll = Payroll::findOrFail($id);
+        try {
+            $payroll = Payroll::findOrFail($id);
 
-        $payroll->fill($request->only([
-            'employee_id',
-            'month',
-            'basic_salary',
-            'bonus',
-            'deductions',
-        ]));
+            $payroll->fill($request->only([
+                'employee_id',
+                'month',
+                'basic_salary',
+                'bonus',
+                'deductions',
+            ]));
 
-        // update net_salary
-        $basic_salary = $payroll->basic_salary ?? 0;
-        $bonus = $payroll->bonus ?? 0;
-        $deductions = $payroll->deductions ?? 0;
-        $payroll->net_salary = $basic_salary + $bonus - $deductions;
+            $payroll->net_salary = $this->calculateNetSalary(
+                $payroll->basic_salary,
+                $payroll->bonus,
+                $payroll->deductions
+            );
 
-        $payroll->save();
+            $payroll->save();
 
-        return response()->json($payroll);
+            return response()->json($payroll);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested payroll resource was not found.'
+                    ]
+                ]
+            ], 404);
+        }
     }
 
     // deleting certain id payroll
     public function destroy($id)
     {
-        $payroll = Payroll::findOrFail($id);
-        $payroll->delete();
+        try {
+            $payroll = Payroll::findOrFail($id);
+            $payroll->delete();
 
-        return response()->json(['message' => 'Payroll deleted successfully']);
+            return response()->json(['message' => 'Payroll deleted successfully']);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'errors' => [
+                    [
+                        'status' => '404',
+                        'title'  => 'Resource not found',
+                        'detail' => 'The requested payroll resource was not found.'
+                    ]
+                ]
+            ], 404);
+        }
+    }
+
+    private function calculateNetSalary($basic_salary, $bonus, $deductions)
+    {
+        return $basic_salary + ($bonus ?? 0) - ($deductions ?? 0);
     }
 }
