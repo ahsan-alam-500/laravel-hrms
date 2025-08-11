@@ -82,7 +82,7 @@ All endpoints are prefixed with `/api/v1`.
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/publichrms.git
+    git clone https://github.com/ahsan-alam-500/laravel-hrms.git
     ```
 2.  Install dependencies:
     ```bash
